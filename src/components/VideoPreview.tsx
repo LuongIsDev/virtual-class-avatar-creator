@@ -3,9 +3,7 @@ import { useState, useEffect } from 'react';
 import { Play, Pause, Volume2, VolumeX, Download, Share, Settings, Loader2, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
@@ -19,8 +17,6 @@ const VideoPreview = ({ project }: VideoPreviewProps) => {
   const [isMuted, setIsMuted] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generationProgress, setGenerationProgress] = useState(0);
   const [showSubtitles, setShowSubtitles] = useState(true);
   const [videoQuality, setVideoQuality] = useState('1080p');
   const [mouthAnimation, setMouthAnimation] = useState(0);
@@ -60,43 +56,6 @@ const VideoPreview = ({ project }: VideoPreviewProps) => {
     }
   };
 
-  const handleGenerateVideo = async () => {
-    setIsGenerating(true);
-    setGenerationProgress(0);
-
-    const progressInterval = setInterval(() => {
-      setGenerationProgress(prev => {
-        if (prev >= 95) {
-          clearInterval(progressInterval);
-          return prev;
-        }
-        return prev + Math.random() * 5;
-      });
-    }, 1000);
-
-    try {
-      // Simulate video generation process
-      await new Promise(resolve => setTimeout(resolve, 15000));
-      
-      setGenerationProgress(100);
-      
-      toast({
-        title: "Video đã tạo xong!",
-        description: "Video bài giảng của bạn đã được tạo thành công. Bạn có thể tải xuống ngay.",
-      });
-
-    } catch (error) {
-      toast({
-        title: "Lỗi",
-        description: "Có lỗi xảy ra khi tạo video. Vui lòng thử lại.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsGenerating(false);
-      clearInterval(progressInterval);
-    }
-  };
-
   if (!project) {
     return (
       <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
@@ -116,13 +75,21 @@ const VideoPreview = ({ project }: VideoPreviewProps) => {
   }
 
   const duration = project.content?.totalDuration || 100;
-  const progressPercentage = (currentTime / duration) * 100;
   const currentSlideData = project.content?.slides?.[currentSlide] || project.content?.slides?.[0];
 
   return (
     <div className="space-y-6">
       {/* Video Preview */}
       <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm overflow-hidden">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CheckCircle className="h-5 w-5 text-green-600" />
+            Video đã tạo thành công!
+          </CardTitle>
+          <CardDescription>
+            Video bài giảng của bạn đã sẵn sàng. Bấm play để xem và có thể tải xuống.
+          </CardDescription>
+        </CardHeader>
         <CardContent className="p-0">
           {/* Video Player */}
           <div className="relative aspect-video bg-gradient-to-br from-gray-900 to-black">
@@ -232,19 +199,15 @@ const VideoPreview = ({ project }: VideoPreviewProps) => {
             <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
               {currentSlide + 1} / {project.content?.slides?.length || 5}
             </div>
+
+            {/* Time Display - No scrubbing allowed */}
+            <div className="absolute bottom-4 left-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+              {Math.floor(currentTime / 60)}:{(currentTime % 60).toString().padStart(2, '0')} / {Math.floor(duration / 60)}:{(duration % 60).toString().padStart(2, '0')}
+            </div>
           </div>
 
-          {/* Video Controls */}
+          {/* Video Controls - Simplified, no scrubbing */}
           <div className="p-4 space-y-4">
-            {/* Progress Bar */}
-            <div className="space-y-2">
-              <Progress value={progressPercentage} className="h-2" />
-              <div className="flex justify-between text-sm text-gray-500">
-                <span>{Math.floor(currentTime / 60)}:{(currentTime % 60).toString().padStart(2, '0')}</span>
-                <span>{Math.floor(duration / 60)}:{(duration % 60).toString().padStart(2, '0')}</span>
-              </div>
-            </div>
-
             {/* Control Buttons */}
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
@@ -333,28 +296,6 @@ const VideoPreview = ({ project }: VideoPreviewProps) => {
         </CardContent>
       </Card>
 
-      {/* Generation Progress */}
-      {isGenerating && (
-        <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-          <CardContent className="pt-6">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="font-medium">Đang tạo video...</span>
-                <span className="text-sm text-gray-500">{Math.round(generationProgress)}%</span>
-              </div>
-              <Progress value={generationProgress} className="h-3" />
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                {generationProgress < 30 && "Đang chuẩn bị slides và script..."}
-                {generationProgress >= 30 && generationProgress < 60 && "Đang tạo avatar và đồng bộ khẩu hình..."}
-                {generationProgress >= 60 && generationProgress < 90 && "Đang render video và âm thanh..."}
-                {generationProgress >= 90 && "Đang hoàn thiện và xuất video..."}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Action Buttons */}
       <div className="flex justify-between items-center">
         <div className="flex space-x-2">
@@ -362,28 +303,11 @@ const VideoPreview = ({ project }: VideoPreviewProps) => {
             <Share className="h-4 w-4 mr-2" />
             Chia sẻ
           </Button>
-          <Button variant="outline">
-            <Download className="h-4 w-4 mr-2" />
-            Tải xuống
-          </Button>
         </div>
         
-        <Button
-          onClick={handleGenerateVideo}
-          disabled={isGenerating}
-          className="bg-gradient-to-r from-purple-600 to-blue-600 px-8"
-        >
-          {isGenerating ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Đang tạo video...
-            </>
-          ) : (
-            <>
-              <CheckCircle className="h-4 w-4 mr-2" />
-              Tạo video chính thức
-            </>
-          )}
+        <Button className="bg-gradient-to-r from-purple-600 to-blue-600 px-8">
+          <Download className="h-4 w-4 mr-2" />
+          Tải xuống video
         </Button>
       </div>
     </div>

@@ -1,10 +1,8 @@
-
 import { useState } from 'react';
-import { Users, Play, Volume2, Settings, CheckCircle, Mic } from 'lucide-react';
+import { Users, Play, Settings, CheckCircle, Mic, ArrowRight } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
@@ -12,9 +10,10 @@ import { useToast } from '@/hooks/use-toast';
 interface AvatarSelectorProps {
   project: any;
   onProjectUpdated: (project: any) => void;
+  onComplete: () => void;
 }
 
-const AvatarSelector = ({ project, onProjectUpdated }: AvatarSelectorProps) => {
+const AvatarSelector = ({ project, onProjectUpdated, onComplete }: AvatarSelectorProps) => {
   const [selectedAvatar, setSelectedAvatar] = useState(null);
   const [selectedVoice, setSelectedVoice] = useState('');
   const [voiceSpeed, setVoiceSpeed] = useState([1.0]);
@@ -111,7 +110,7 @@ const AvatarSelector = ({ project, onProjectUpdated }: AvatarSelectorProps) => {
     }, 3000);
   };
 
-  const handleSettingsApply = () => {
+  const handleCreateVideo = () => {
     if (!selectedAvatar || !selectedVoice) {
       toast({
         title: "Thiếu thông tin",
@@ -135,9 +134,11 @@ const AvatarSelector = ({ project, onProjectUpdated }: AvatarSelectorProps) => {
     onProjectUpdated(updatedProject);
     
     toast({
-      title: "Cấu hình hoàn tất",
-      description: "Avatar và giọng đọc đã được thiết lập. Chuyển sang xem trước...",
+      title: "Bắt đầu tạo video",
+      description: "Đang tạo video bài giảng với avatar và giọng đọc đã chọn...",
     });
+
+    onComplete();
   };
 
   if (!project) {
@@ -160,6 +161,16 @@ const AvatarSelector = ({ project, onProjectUpdated }: AvatarSelectorProps) => {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+          Chọn Avatar và Giọng Đọc
+        </h2>
+        <p className="text-gray-600 max-w-2xl mx-auto">
+          Lựa chọn avatar giảng viên và giọng đọc phù hợp với phong cách bài giảng của bạn
+        </p>
+      </div>
+
       {/* Avatar Selection */}
       <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
         <CardHeader>
@@ -327,15 +338,17 @@ const AvatarSelector = ({ project, onProjectUpdated }: AvatarSelectorProps) => {
         </CardContent>
       </Card>
 
-      {/* Apply Settings */}
+      {/* Create Video Button */}
       <div className="flex justify-end">
         <Button
-          onClick={handleSettingsApply}
+          onClick={handleCreateVideo}
           disabled={!selectedAvatar || !selectedVoice}
-          className="bg-gradient-to-r from-purple-600 to-blue-600"
+          size="lg"
+          className="bg-gradient-to-r from-purple-600 to-blue-600 px-8"
         >
-          <CheckCircle className="h-4 w-4 mr-2" />
-          Áp dụng cài đặt
+          <Play className="h-5 w-5 mr-2" />
+          Tạo Video
+          <ArrowRight className="h-5 w-5 ml-2" />
         </Button>
       </div>
     </div>
