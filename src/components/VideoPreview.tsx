@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Play, Pause, Volume2, VolumeX, Download, Share, Settings, Loader2, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,24 +18,42 @@ const VideoPreview = ({ project }: VideoPreviewProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
+  const [currentSlide, setCurrentSlide] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
   const [showSubtitles, setShowSubtitles] = useState(true);
   const [videoQuality, setVideoQuality] = useState('1080p');
+  const [mouthAnimation, setMouthAnimation] = useState(0);
   const { toast } = useToast();
+
+  // Mouth animation for talking avatar
+  useEffect(() => {
+    if (isPlaying) {
+      const interval = setInterval(() => {
+        setMouthAnimation(prev => (prev + 1) % 4);
+      }, 200);
+      return () => clearInterval(interval);
+    }
+  }, [isPlaying]);
 
   const handlePlayPause = () => {
     setIsPlaying(!isPlaying);
     
     if (!isPlaying) {
-      // Simulate video playback
+      // Simulate video playback with realistic timing
       const interval = setInterval(() => {
         setCurrentTime(prev => {
-          if (prev >= (project?.content?.totalDuration || 100)) {
+          const duration = project?.content?.totalDuration || 100;
+          if (prev >= duration) {
             setIsPlaying(false);
             clearInterval(interval);
             return 0;
           }
+          
+          // Change slides based on time
+          const slideIndex = Math.floor((prev / duration) * (project?.content?.slides?.length || 5));
+          setCurrentSlide(slideIndex);
+          
           return prev + 1;
         });
       }, 1000);
@@ -99,6 +117,7 @@ const VideoPreview = ({ project }: VideoPreviewProps) => {
 
   const duration = project.content?.totalDuration || 100;
   const progressPercentage = (currentTime / duration) * 100;
+  const currentSlideData = project.content?.slides?.[currentSlide] || project.content?.slides?.[0];
 
   return (
     <div className="space-y-6">
@@ -107,30 +126,29 @@ const VideoPreview = ({ project }: VideoPreviewProps) => {
         <CardContent className="p-0">
           {/* Video Player */}
           <div className="relative aspect-video bg-gradient-to-br from-gray-900 to-black">
-            {/* Video Content Simulation */}
+            {/* Video Content */}
             <div className="absolute inset-0 flex">
               {/* Main Content Area (Slides) */}
               <div className="flex-1 flex items-center justify-center p-8">
-                <div className="w-full max-w-4xl bg-white rounded-lg shadow-2xl p-8">
+                <div className="w-full max-w-4xl bg-white rounded-lg shadow-2xl p-8 animate-fade-in">
                   <div className="text-center">
                     <h2 className="text-3xl font-bold text-gray-900 mb-6">
-                      {project.content?.slides?.[0]?.title || "Tiêu đề slide"}
+                      {currentSlideData?.title || "Tiêu đề slide"}
                     </h2>
                     <div className="space-y-4 text-gray-700">
                       <p className="text-lg leading-relaxed">
-                        {project.content?.slides?.[0]?.content || "Nội dung slide sẽ hiển thị tại đây..."}
+                        {currentSlideData?.content || "Nội dung slide sẽ hiển thị tại đây..."}
                       </p>
-                      <div className="flex justify-center space-x-4 pt-6">
-                        <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center">
-                          <div className="w-8 h-8 bg-purple-500 rounded-full"></div>
+                      {currentSlideData?.keyPoints && (
+                        <div className="text-left space-y-2 mt-6">
+                          <h4 className="font-semibold text-gray-900">Điểm chính:</h4>
+                          <ul className="list-disc list-inside space-y-1">
+                            {currentSlideData.keyPoints.map((point: string, index: number) => (
+                              <li key={index} className="text-gray-700">{point}</li>
+                            ))}
+                          </ul>
                         </div>
-                        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                          <div className="w-8 h-8 bg-blue-500 rounded-full"></div>
-                        </div>
-                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                          <div className="w-8 h-8 bg-green-500 rounded-full"></div>
-                        </div>
-                      </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -139,14 +157,42 @@ const VideoPreview = ({ project }: VideoPreviewProps) => {
               {/* Avatar Area */}
               <div className="w-80 p-6 flex flex-col justify-end">
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                  <div className="aspect-[3/4] bg-gradient-to-b from-purple-400 to-blue-500 rounded-xl mb-4 flex items-center justify-center">
-                    <div className="text-white text-center">
-                      <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <div className="aspect-[3/4] bg-gradient-to-b from-purple-400 to-blue-500 rounded-xl mb-4 flex items-center justify-center relative overflow-hidden">
+                    {/* Avatar with mouth animation */}
+                    <div className="text-white text-center relative">
+                      <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3 relative">
                         <Play className="h-8 w-8" />
+                        {/* Animated mouth */}
+                        {isPlaying && (
+                          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2">
+                            <div 
+                              className={`w-4 h-1 bg-white/60 rounded-full transition-all duration-200 ${
+                                mouthAnimation % 2 === 0 ? 'scale-x-100' : 'scale-x-75'
+                              } ${
+                                Math.floor(mouthAnimation/2) % 2 === 0 ? 'scale-y-100' : 'scale-y-150'
+                              }`}
+                            />
+                          </div>
+                        )}
                       </div>
                       <p className="font-medium">
                         {project.avatar?.name || "AI Avatar"}
                       </p>
+                      {/* Voice wave animation */}
+                      {isPlaying && (
+                        <div className="flex justify-center space-x-1 mt-2">
+                          {Array.from({length: 5}).map((_, i) => (
+                            <div 
+                              key={i}
+                              className="w-1 bg-white/60 rounded-full animate-pulse"
+                              style={{
+                                height: `${8 + (mouthAnimation + i) % 4 * 4}px`,
+                                animationDelay: `${i * 100}ms`
+                              }}
+                            />
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                   {project.avatar && (
@@ -161,10 +207,10 @@ const VideoPreview = ({ project }: VideoPreviewProps) => {
             </div>
 
             {/* Subtitles */}
-            {showSubtitles && (
-              <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 bg-black/80 text-white px-6 py-3 rounded-lg">
+            {showSubtitles && isPlaying && (
+              <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 bg-black/80 text-white px-6 py-3 rounded-lg max-w-4xl">
                 <p className="text-center font-medium">
-                  "Xin chào các bạn, hôm nay chúng ta sẽ cùng tìm hiểu về chủ đề này..."
+                  {currentSlideData?.content?.slice(0, 100) + "..." || "Xin chào các bạn, hôm nay chúng ta sẽ cùng tìm hiểu về chủ đề này..."}
                 </p>
               </div>
             )}
@@ -181,6 +227,11 @@ const VideoPreview = ({ project }: VideoPreviewProps) => {
                 </Button>
               </div>
             )}
+
+            {/* Slide Counter */}
+            <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+              {currentSlide + 1} / {project.content?.slides?.length || 5}
+            </div>
           </div>
 
           {/* Video Controls */}

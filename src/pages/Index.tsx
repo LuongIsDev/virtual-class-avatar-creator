@@ -21,6 +21,21 @@ const Index = () => {
     }, 1000);
   };
 
+  const handleProjectUpdated = (updatedProject: any) => {
+    setProject(updatedProject);
+    // If avatar and voice are configured, enable preview
+    if (updatedProject.avatar && updatedProject.voice) {
+      // Auto switch to preview after configuration
+      setTimeout(() => {
+        setActiveTab('preview');
+      }, 500);
+    }
+  };
+
+  // Determine which tabs should be enabled
+  const isAvatarTabEnabled = project !== null;
+  const isPreviewTabEnabled = project && project.avatar && project.voice;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
       {/* Header */}
@@ -121,14 +136,20 @@ const Index = () => {
             </TabsTrigger>
             <TabsTrigger 
               value="avatar"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white"
+              disabled={!isAvatarTabEnabled}
+              className={`data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white ${
+                !isAvatarTabEnabled ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             >
               <Users className="h-4 w-4 mr-2" />
               Chọn Avatar
             </TabsTrigger>
             <TabsTrigger 
               value="preview"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white"
+              disabled={!isPreviewTabEnabled}
+              className={`data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white ${
+                !isPreviewTabEnabled ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             >
               <Play className="h-4 w-4 mr-2" />
               Xem Trước
@@ -147,7 +168,7 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="avatar" className="space-y-6">
-            <AvatarSelector project={project} onProjectUpdated={setProject} />
+            <AvatarSelector project={project} onProjectUpdated={handleProjectUpdated} />
           </TabsContent>
 
           <TabsContent value="preview" className="space-y-6">
@@ -160,7 +181,7 @@ const Index = () => {
         </Tabs>
 
         {/* Quick Actions */}
-        {project && (
+        {isPreviewTabEnabled && (  
           <div className="fixed bottom-6 right-6 space-y-3">
             <Button
               size="lg"

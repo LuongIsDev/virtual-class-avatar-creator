@@ -29,7 +29,6 @@ const AvatarSelector = ({ project, onProjectUpdated }: AvatarSelectorProps) => {
       age: 'young',
       style: 'professional',
       description: 'Giáo viên trẻ, chuyên nghiệp',
-      image: '/api/placeholder/200/250',
       premium: false
     },
     {
@@ -39,7 +38,6 @@ const AvatarSelector = ({ project, onProjectUpdated }: AvatarSelectorProps) => {
       age: 'middle',
       style: 'friendly',
       description: 'Thầy giáo thân thiện, kinh nghiệm',
-      image: '/api/placeholder/200/250',
       premium: false
     },
     {
@@ -49,7 +47,6 @@ const AvatarSelector = ({ project, onProjectUpdated }: AvatarSelectorProps) => {
       age: 'middle',
       style: 'authoritative',
       description: 'Chuyên gia, uy tín',
-      image: '/api/placeholder/200/250',
       premium: true
     },
     {
@@ -59,7 +56,6 @@ const AvatarSelector = ({ project, onProjectUpdated }: AvatarSelectorProps) => {
       age: 'senior',
       style: 'wise',
       description: 'Giáo sư kinh nghiệm, thông thái',
-      image: '/api/placeholder/200/250',
       premium: true
     },
     {
@@ -69,7 +65,6 @@ const AvatarSelector = ({ project, onProjectUpdated }: AvatarSelectorProps) => {
       age: 'young',
       style: 'energetic',
       description: 'Năng động, sôi nổi',
-      image: '/api/placeholder/200/250',
       premium: true
     },
     {
@@ -79,7 +74,6 @@ const AvatarSelector = ({ project, onProjectUpdated }: AvatarSelectorProps) => {
       age: 'young',
       style: 'casual',
       description: 'Thoải mái, dễ gần',
-      image: '/api/placeholder/200/250',
       premium: false
     }
   ];
@@ -96,15 +90,6 @@ const AvatarSelector = ({ project, onProjectUpdated }: AvatarSelectorProps) => {
   const handleAvatarSelect = (avatar: any) => {
     setSelectedAvatar(avatar);
     
-    if (project) {
-      const updatedProject = {
-        ...project,
-        avatar: avatar,
-        status: 'avatar_selected'
-      };
-      onProjectUpdated(updatedProject);
-    }
-    
     toast({
       title: "Đã chọn Avatar",
       description: `Avatar ${avatar.name} đã được chọn cho dự án.`,
@@ -113,7 +98,7 @@ const AvatarSelector = ({ project, onProjectUpdated }: AvatarSelectorProps) => {
 
   const handleVoicePreview = async (voiceId: string) => {
     toast({
-      title: "Đang phát giống đọc mẫu",
+      title: "Đang phát giọng đọc mẫu",
       description: "Đang tải và phát giọng đọc mẫu...",
     });
     
@@ -151,7 +136,7 @@ const AvatarSelector = ({ project, onProjectUpdated }: AvatarSelectorProps) => {
     
     toast({
       title: "Cấu hình hoàn tất",
-      description: "Avatar và giọng đọc đã được thiết lập. Bạn có thể xem trước video.",
+      description: "Avatar và giọng đọc đã được thiết lập. Chuyển sang xem trước...",
     });
   };
 
@@ -210,8 +195,19 @@ const AvatarSelector = ({ project, onProjectUpdated }: AvatarSelectorProps) => {
                   </Badge>
                 )}
                 
-                <div className="aspect-[4/5] bg-gradient-to-b from-gray-100 to-gray-200 rounded-lg mb-3 flex items-center justify-center">
-                  <Users className="h-12 w-12 text-gray-400" />
+                <div className="aspect-[4/5] bg-gradient-to-b from-gray-100 to-gray-200 rounded-lg mb-3 flex items-center justify-center overflow-hidden relative">
+                  {/* Animated Avatar Preview */}
+                  <div className="w-full h-full relative bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center">
+                    <div className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-full bg-white/40 flex items-center justify-center animate-pulse">
+                        <Users className="h-6 w-6 text-white" />
+                      </div>
+                    </div>
+                    {/* Talking animation effect */}
+                    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+                      <div className="w-8 h-2 bg-white/30 rounded-full animate-pulse"></div>
+                    </div>
+                  </div>
                 </div>
                 
                 <div className="text-center">
