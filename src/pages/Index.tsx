@@ -13,6 +13,14 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState('upload');
   const [project, setProject] = useState(null);
 
+  const handleProjectCreated = (newProject: any) => {
+    setProject(newProject);
+    // Automatically switch to avatar selection after successful upload
+    setTimeout(() => {
+      setActiveTab('avatar');
+    }, 1000);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
       {/* Header */}
@@ -135,7 +143,7 @@ const Index = () => {
           </TabsList>
 
           <TabsContent value="upload" className="space-y-6">
-            <ContentUploader onProjectCreated={setProject} />
+            <ContentUploader onProjectCreated={handleProjectCreated} />
           </TabsContent>
 
           <TabsContent value="avatar" className="space-y-6">

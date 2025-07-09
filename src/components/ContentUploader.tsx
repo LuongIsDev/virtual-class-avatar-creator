@@ -22,6 +22,86 @@ const ContentUploader = ({ onProjectCreated }: ContentUploaderProps) => {
   const [dragActive, setDragActive] = useState(false);
   const { toast } = useToast();
 
+  const createMockProject = (title: string, source: 'file' | 'text', fileName?: string) => {
+    const mockSlides = [
+      {
+        id: 1,
+        title: "Giới thiệu về Trí tuệ Nhân tạo",
+        content: "Trí tuệ nhân tạo (AI) là khả năng của máy tính mô phỏng các quá trình tư duy của con người. AI đã trở thành một phần không thể thiếu trong cuộc sống hiện đại, từ các ứng dụng di động đến hệ thống tự động hóa trong công nghiệp.",
+        duration: 45,
+        keyPoints: [
+          "Định nghĩa AI và các khái niệm cơ bản",
+          "Lịch sử phát triển của AI", 
+          "Ứng dụng AI trong thực tế"
+        ]
+      },
+      {
+        id: 2,
+        title: "Các loại hình Trí tuệ Nhân tạo",
+        content: "AI được chia thành nhiều loại khác nhau: AI hẹp (Narrow AI) chỉ thực hiện một nhiệm vụ cụ thể, AI tổng quát (General AI) có thể thực hiện nhiều nhiệm vụ như con người, và AI siêu việt (Super AI) vượt trội hơn con người.",
+        duration: 50,
+        keyPoints: [
+          "AI hẹp (Narrow AI) - hiện tại",
+          "AI tổng quát (General AI) - tương lai gần",
+          "AI siêu việt (Super AI) - tương lai xa"
+        ]
+      },
+      {
+        id: 3,
+        title: "Machine Learning và Deep Learning",
+        content: "Machine Learning là nhánh của AI cho phép máy tính học từ dữ liệu mà không cần lập trình cụ thể. Deep Learning sử dụng mạng neural nhân tạo để mô phỏng cách hoạt động của não người, giúp giải quyết các bài toán phức tạp.",
+        duration: 55,
+        keyPoints: [
+          "Khái niệm Machine Learning",
+          "Supervised vs Unsupervised Learning",
+          "Deep Learning và Neural Networks"
+        ]
+      },
+      {
+        id: 4,
+        title: "Ứng dụng AI trong đời sống",
+        content: "AI hiện diện khắp nơi: trợ lý ảo như Siri và Alexa, hệ thống gợi ý trên Netflix và YouTube, xe tự lái, chẩn đoán y tế, dịch thuật tự động, và nhiều ứng dụng khác đang thay đổi cách chúng ta sống và làm việc.",
+        duration: 40,
+        keyPoints: [
+          "AI trong giải trí và truyền thông",
+          "AI trong y tế và chăm sóc sức khỏe",
+          "AI trong giao thông và logistics"
+        ]
+      },
+      {
+        id: 5,
+        title: "Thách thức và Tương lai của AI",
+        content: "Mặc dù mang lại nhiều lợi ích, AI cũng đặt ra những thách thức về đạo đức, quyền riêng tư, và tác động đến việc làm. Chúng ta cần phát triển AI có trách nhiệm để đảm bảo lợi ích cho toàn nhân loại.",
+        duration: 45,
+        keyPoints: [
+          "Thách thức đạo đức và xã hội",
+          "Tác động đến thị trường lao động",
+          "Tương lai của AI và con người"
+        ]
+      }
+    ];
+
+    return {
+      id: Date.now(),
+      title,
+      fileName: fileName || `${title}.txt`,
+      fileType: fileName ? 'application/pdf' : 'text/plain',
+      content: {
+        slides: mockSlides,
+        totalDuration: mockSlides.reduce((sum, slide) => sum + slide.duration, 0),
+        script: mockSlides.map(slide => 
+          `${slide.title}. ${slide.content} ${slide.keyPoints.join('. ')}.`
+        ).join(' '),
+        summary: "Bài giảng tổng quan về Trí tuệ Nhân tạo, bao gồm định nghĩا, phân loại, công nghệ cốt lõi, ứng dụng thực tế và những thách thức trong tương lai.",
+        language: "vi",
+        estimatedViewTime: "4-5 phút"
+      },
+      createdAt: new Date().toISOString(),
+      status: 'analyzed',
+      source: source
+    };
+  };
+
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -55,60 +135,28 @@ const ContentUploader = ({ onProjectCreated }: ContentUploaderProps) => {
     setIsProcessing(true);
     setProgress(0);
 
-    // Simulate file processing
-    const progressInterval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 90) {
-          clearInterval(progressInterval);
-          return prev;
-        }
-        return prev + Math.random() * 10;
-      });
-    }, 200);
+    // Simulate realistic processing steps
+    const steps = [
+      { progress: 15, message: "Đang tải file lên..." },
+      { progress: 35, message: "Đang trích xuất văn bản từ PDF..." },
+      { progress: 55, message: "AI đang phân tích nội dung..." },
+      { progress: 75, message: "Đang tạo cấu trúc bài giảng..." },
+      { progress: 90, message: "Đang tối ưu hóa nội dung..." },
+      { progress: 100, message: "Hoàn thành!" }
+    ];
+
+    for (const step of steps) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setProgress(step.progress);
+    }
 
     try {
-      // Simulate AI content analysis
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      const mockProject = {
-        id: Date.now(),
-        title: projectTitle,
-        fileName: file.name,
-        fileType: file.type,
-        content: {
-          slides: [
-            {
-              id: 1,
-              title: "Giới thiệu chủ đề",
-              content: "Nội dung slide 1 được AI phân tích từ file của bạn...",
-              duration: 30
-            },
-            {
-              id: 2,
-              title: "Nội dung chính",
-              content: "Nội dung slide 2 với các điểm chính được trích xuất...",
-              duration: 45
-            },
-            {
-              id: 3,
-              title: "Kết luận",
-              content: "Tóm tắt và kết luận từ nội dung được phân tích...",
-              duration: 25
-            }
-          ],
-          totalDuration: 100,
-          script: "Xin chào các bạn, hôm nay chúng ta sẽ cùng tìm hiểu về..."
-        },
-        createdAt: new Date().toISOString(),
-        status: 'analyzed'
-      };
-
-      setProgress(100);
+      const mockProject = createMockProject(projectTitle, 'file', file.name);
       onProjectCreated(mockProject);
       
       toast({
         title: "Thành công!",
-        description: `Đã phân tích nội dung từ ${file.name}. Bạn có thể chuyển sang bước tiếp theo.`,
+        description: `Đã phân tích nội dung từ ${file.name}. Chuyển sang bước tiếp theo...`,
       });
 
     } catch (error) {
@@ -119,7 +167,6 @@ const ContentUploader = ({ onProjectCreated }: ContentUploaderProps) => {
       });
     } finally {
       setIsProcessing(false);
-      clearInterval(progressInterval);
     }
   };
 
@@ -136,56 +183,25 @@ const ContentUploader = ({ onProjectCreated }: ContentUploaderProps) => {
     setIsProcessing(true);
     setProgress(0);
 
-    const progressInterval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 90) {
-          clearInterval(progressInterval);
-          return prev;
-        }
-        return prev + Math.random() * 10;
-      });
-    }, 200);
+    const steps = [
+      { progress: 20, message: "Đang phân tích văn bản..." },
+      { progress: 45, message: "AI đang tạo cấu trúc bài giảng..." },
+      { progress: 70, message: "Đang tối ưu hóa nội dung..." },
+      { progress: 100, message: "Hoàn thành!" }
+    ];
+
+    for (const step of steps) {
+      await new Promise(resolve => setTimeout(resolve, 400));
+      setProgress(step.progress);
+    }
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 2500));
-      
-      const mockProject = {
-        id: Date.now(),
-        title: projectTitle,
-        content: {
-          slides: [
-            {
-              id: 1,
-              title: "Phần mở đầu",
-              content: textContent.substring(0, 200) + "...",
-              duration: 30
-            },
-            {
-              id: 2,
-              title: "Nội dung chính",
-              content: "Nội dung được AI phân tích và cấu trúc lại...",
-              duration: 60
-            },
-            {
-              id: 3,
-              title: "Tổng kết",
-              content: "Kết luận và tóm tắt các điểm quan trọng...",
-              duration: 30
-            }
-          ],
-          totalDuration: 120,
-          script: textContent
-        },
-        createdAt: new Date().toISOString(),
-        status: 'analyzed'
-      };
-
-      setProgress(100);
+      const mockProject = createMockProject(projectTitle, 'text');
       onProjectCreated(mockProject);
       
       toast({
         title: "Thành công!",
-        description: "Đã phân tích và cấu trúc nội dung văn bản. Bạn có thể chuyển sang bước tiếp theo.",
+        description: "Đã phân tích và cấu trúc nội dung văn bản. Chuyển sang bước tiếp theo...",
       });
 
     } catch (error) {
@@ -196,7 +212,6 @@ const ContentUploader = ({ onProjectCreated }: ContentUploaderProps) => {
       });
     } finally {
       setIsProcessing(false);
-      clearInterval(progressInterval);
     }
   };
 
@@ -349,7 +364,12 @@ const ContentUploader = ({ onProjectCreated }: ContentUploaderProps) => {
               <Progress value={progress} className="h-2" />
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                AI đang phân tích và cấu trúc nội dung thành các slide...
+                {progress < 20 && "Đang tải và kiểm tra file..."}
+                {progress >= 20 && progress < 40 && "Đang trích xuất nội dung từ file..."}
+                {progress >= 40 && progress < 60 && "AI đang phân tích và hiểu nội dung..."}
+                {progress >= 60 && progress < 80 && "Đang tạo cấu trúc bài giảng logic..."}
+                {progress >= 80 && progress < 100 && "Đang hoàn thiện và tối ưu hóa..."}
+                {progress >= 100 && "Hoàn thành! Chuẩn bị chuyển bước..."}
               </div>
             </div>
           </CardContent>
