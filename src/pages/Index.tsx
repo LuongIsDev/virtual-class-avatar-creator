@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Upload, Play, Settings, BookOpen, Video, Users, Sparkles, ArrowLeft, ArrowRight, GraduationCap, Brain, Zap } from 'lucide-react';
+import { Upload, Play, Settings, BookOpen, Video, Users, Sparkles, ArrowLeft, ArrowRight, GraduationCap, Brain, Zap, CheckCircle, Clock, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import ContentUploader from '@/components/ContentUploader';
@@ -45,69 +45,25 @@ const Index = () => {
     setCurrentStep('upload');
   };
 
-  const renderStepIndicator = () => {
-    const steps = [
-      { id: 'upload', label: 'Tải Nội Dung', icon: Upload },
-      { id: 'avatar', label: 'Chọn Avatar', icon: Users },
-      { id: 'generating', label: 'Tạo Video', icon: Play },
-      { id: 'preview', label: 'Hoàn Thành', icon: Video },
-    ];
-
-    return (
-      <div className="flex items-center justify-center space-x-4 mb-8">
-        {steps.map((step, index) => {
-          const Icon = step.icon;
-          const isActive = step.id === currentStep;
-          const isCompleted = steps.findIndex(s => s.id === currentStep) > index;
-          const isAccessible = 
-            step.id === 'upload' || 
-            (step.id === 'avatar' && project) ||
-            (step.id === 'generating' && project?.avatar) ||
-            (step.id === 'preview' && project?.avatar);
-
-          return (
-            <div key={step.id} className="flex items-center">
-              <div className={`flex items-center space-x-2 px-4 py-2 rounded-lg border ${
-                isActive 
-                  ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white border-transparent' 
-                  : isCompleted
-                  ? 'bg-green-100 text-green-800 border-green-300'
-                  : isAccessible
-                  ? 'bg-white border-gray-300 text-gray-700'
-                  : 'bg-gray-100 border-gray-200 text-gray-400'
-              }`}>
-                <Icon className="h-4 w-4" />
-                <span className="text-sm font-medium">{step.label}</span>
-              </div>
-              {index < steps.length - 1 && (
-                <ArrowRight className="h-4 w-4 text-gray-400 mx-2" />
-              )}
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b bg-white/90 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg">
+              <div className="p-2 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg shadow-lg">
                 <GraduationCap className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent">
                   EduAI Studio
                 </h1>
-                <p className="text-sm text-gray-600">Nền tảng tạo bài giảng thông minh</p>
+                <p className="text-sm text-slate-600 font-medium">Nền tảng giáo dục thông minh</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="border-slate-300 hover:border-blue-400">
                 <Settings className="h-4 w-4 mr-2" />
                 Cài đặt
               </Button>
@@ -115,11 +71,12 @@ const Index = () => {
                 variant="outline" 
                 size="sm"
                 onClick={handleViewProjects}
+                className="border-slate-300 hover:border-blue-400"
               >
                 <BookOpen className="h-4 w-4 mr-2" />
                 Dự Án
               </Button>
-              <Button size="sm" className="bg-gradient-to-r from-blue-600 to-purple-600">
+              <Button size="sm" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg">
                 <Sparkles className="h-4 w-4 mr-2" />
                 Nâng cấp Pro
               </Button>
@@ -134,91 +91,85 @@ const Index = () => {
           <>
             {/* Hero Section - Only show on upload step */}
             {currentStep === 'upload' && (
-              <div className="text-center mb-12">
-                <div className="mb-8">
-                  <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mb-4">
+              <div className="text-center mb-16">
+                <div className="mb-12">
+                  <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 rounded-full text-sm font-semibold mb-6 border border-blue-200">
                     <Brain className="h-4 w-4 mr-2" />
-                    Trí tuệ nhân tạo trong giáo dục
+                    Công nghệ AI tiên tiến trong giáo dục
                   </div>
-                  <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                  <h2 className="text-6xl font-bold mb-6 bg-gradient-to-r from-slate-800 via-blue-700 to-indigo-700 bg-clip-text text-transparent leading-tight">
                     Tạo Bài Giảng Tương Tác
+                    <br />
+                    <span className="text-4xl">Với Trí Tuệ Nhân Tạo</span>
                   </h2>
-                  <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-                    Biến tài liệu học tập thành video bài giảng sinh động với công nghệ AI tiên tiến. 
-                    Chỉ cần tải lên và để chúng tôi làm phần còn lại.
+                  <p className="text-xl text-slate-600 mb-12 max-w-4xl mx-auto leading-relaxed font-medium">
+                    Chuyển đổi tài liệu học tập thành video bài giảng sinh động và chuyên nghiệp. 
+                    Được tin tưởng bởi hàng nghìn giảng viên và sinh viên trên toàn quốc.
                   </p>
                 </div>
                 
-                {/* Stats */}
-                <div className="grid md:grid-cols-3 gap-8 mb-12">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-blue-600 mb-2">10,000+</div>
-                    <div className="text-gray-600">Video đã tạo</div>
+                {/* Features Grid */}
+                <div className="grid md:grid-cols-3 gap-8 mb-16">
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-slate-200 hover:shadow-xl transition-all duration-300">
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                      <CheckCircle className="h-8 w-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-800 mb-4">Dễ sử dụng</h3>
+                    <p className="text-slate-600 leading-relaxed">
+                      Giao diện trực quan, chỉ cần vài click để tạo ra bài giảng chuyên nghiệp
+                    </p>
                   </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-purple-600 mb-2">50+</div>
-                    <div className="text-gray-600">Avatar AI</div>
+
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-slate-200 hover:shadow-xl transition-all duration-300">
+                    <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                      <Clock className="h-8 w-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-800 mb-4">Tiết kiệm thời gian</h3>
+                    <p className="text-slate-600 leading-relaxed">
+                      Tự động tạo nội dung và video trong vài phút thay vì hàng giờ
+                    </p>
                   </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-indigo-600 mb-2">99%</div>
-                    <div className="text-gray-600">Độ hài lòng</div>
+
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-slate-200 hover:shadow-xl transition-all duration-300">
+                    <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                      <Star className="h-8 w-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-800 mb-4">Chất lượng cao</h3>
+                    <p className="text-slate-600 leading-relaxed">
+                      Video HD với giọng nói tự nhiên và hiệu ứng chuyên nghiệp
+                    </p>
                   </div>
                 </div>
 
-                {/* Process Steps */}
-                <div className="grid md:grid-cols-3 gap-6 mb-12">
-                  <Card className="border-0 shadow-lg bg-white/70 backdrop-blur-sm hover:shadow-xl transition-all duration-300 group">
-                    <CardHeader className="text-center pb-4">
-                      <div className="mx-auto w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <Upload className="h-8 w-8 text-white" />
-                      </div>
-                      <CardTitle className="text-lg text-blue-900">Tải Lên Tài Liệu</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <CardDescription className="text-gray-600 text-center">
-                        Hỗ trợ PDF, PowerPoint, Word và nhiều định dạng khác. AI sẽ tự động phân tích nội dung
-                      </CardDescription>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border-0 shadow-lg bg-white/70 backdrop-blur-sm hover:shadow-xl transition-all duration-300 group">
-                    <CardHeader className="text-center pb-4">
-                      <div className="mx-auto w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <Users className="h-8 w-8 text-white" />
-                      </div>
-                      <CardTitle className="text-lg text-purple-900">Chọn AI Avatar</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <CardDescription className="text-gray-600 text-center">
-                        Lựa chọn từ thư viện avatar đa dạng với giọng nói và phong cách giảng dạy khác nhau
-                      </CardDescription>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border-0 shadow-lg bg-white/70 backdrop-blur-sm hover:shadow-xl transition-all duration-300 group">
-                    <CardHeader className="text-center pb-4">
-                      <div className="mx-auto w-16 h-16 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <Zap className="h-8 w-8 text-white" />
-                      </div>
-                      <CardTitle className="text-lg text-indigo-900">Tạo Video Tự Động</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <CardDescription className="text-gray-600 text-center">
-                        AI tạo video bài giảng hoàn chỉnh với slide, lời thuyết minh và hiệu ứng chuyên nghiệp
-                      </CardDescription>
-                    </CardContent>
-                  </Card>
+                {/* Trusted by section */}
+                <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 border border-slate-200 mb-12">
+                  <p className="text-slate-600 font-semibold mb-6">Được tin tưởng bởi các trường hàng đầu</p>
+                  <div className="grid md:grid-cols-4 gap-8 items-center opacity-60">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-blue-700 mb-1">5,000+</div>
+                      <div className="text-sm text-slate-600">Giảng viên</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-indigo-700 mb-1">50,000+</div>
+                      <div className="text-sm text-slate-600">Sinh viên</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-purple-700 mb-1">200+</div>
+                      <div className="text-sm text-slate-600">Trường học</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-emerald-700 mb-1">98%</div>
+                      <div className="text-sm text-slate-600">Hài lòng</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* Step Indicator */}
-            {currentStep !== 'upload' && renderStepIndicator()}
-
             {/* Back Button */}
             {currentStep !== 'upload' && (
               <div className="mb-6">
-                <Button variant="outline" onClick={handleBackToUpload}>
+                <Button variant="outline" onClick={handleBackToUpload} className="border-slate-300 hover:border-blue-400">
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Quay lại đầu
                 </Button>
@@ -242,18 +193,21 @@ const Index = () => {
           )}
 
           {currentStep === 'generating' && (
-            <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-              <CardContent className="pt-6">
-                <div className="text-center py-12">
-                  <div className="animate-spin w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full mx-auto mb-4"></div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm max-w-2xl mx-auto">
+              <CardContent className="pt-8">
+                <div className="text-center py-16">
+                  <div className="relative mb-8">
+                    <div className="animate-spin w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full mx-auto"></div>
+                    <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-indigo-400 rounded-full mx-auto animate-spin" style={{animationDelay: '0.5s', animationDuration: '1.5s'}}></div>
+                  </div>
+                  <h3 className="text-2xl font-bold text-slate-800 mb-4">
                     Đang tạo video bài giảng...
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-slate-600 text-lg mb-6">
                     AI đang xử lý nội dung và tạo video chuyên nghiệp cho bạn
                   </p>
-                  <div className="mt-4 text-sm text-blue-600">
-                    Thời gian ước tính: 2-3 phút
+                  <div className="bg-blue-50 rounded-lg p-4 inline-block">
+                    <p className="text-blue-700 font-semibold">Thời gian ước tính: 2-3 phút</p>
                   </div>
                 </div>
               </CardContent>
@@ -267,7 +221,7 @@ const Index = () => {
           {currentStep === 'projects' && (
             <div>
               <div className="mb-6">
-                <Button variant="outline" onClick={handleBackFromProjects}>
+                <Button variant="outline" onClick={handleBackFromProjects} className="border-slate-300 hover:border-blue-400">
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Quay lại
                 </Button>
