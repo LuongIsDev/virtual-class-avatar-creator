@@ -7,7 +7,6 @@ import ContentUploader from '@/components/ContentUploader';
 import AvatarSelector from '@/components/AvatarSelector';
 import VideoPreview from '@/components/VideoPreview';
 import ProjectDashboard from '@/components/ProjectDashboard';
-import RecentProjects from '@/components/RecentProjects';
 import { Link } from 'react-router-dom';
 
 const Index = () => {
@@ -46,6 +45,11 @@ const Index = () => {
     setCurrentStep('upload');
   };
 
+  const handleProjectSelected = (selectedProject: any) => {
+    setProject(selectedProject);
+    setCurrentStep('preview');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Enhanced Header */}
@@ -66,7 +70,7 @@ const Index = () => {
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
-              <Link to="/" className="text-slate-600 hover:text-blue-600 font-medium transition-colors">Trang chủ</Link>
+              <Link to="/" className="text-blue-600 font-medium">Trang chủ</Link>
               <Link to="/features" className="text-slate-600 hover:text-blue-600 font-medium transition-colors">Tính năng</Link>
               <Link to="/guide" className="text-slate-600 hover:text-blue-600 font-medium transition-colors">Hướng dẫn</Link>
               <Link to="/about" className="text-slate-600 hover:text-blue-600 font-medium transition-colors">Giới thiệu</Link>
@@ -108,7 +112,7 @@ const Index = () => {
           {isMenuOpen && (
             <div className="md:hidden py-4 border-t border-slate-200">
               <nav className="flex flex-col space-y-4">
-                <Link to="/" className="text-slate-600 hover:text-blue-600 font-medium">Trang chủ</Link>
+                <Link to="/" className="text-blue-600 font-medium">Trang chủ</Link>
                 <Link to="/features" className="text-slate-600 hover:text-blue-600 font-medium">Tính năng</Link>
                 <Link to="/guide" className="text-slate-600 hover:text-blue-600 font-medium">Hướng dẫn</Link>
                 <Link to="/about" className="text-slate-600 hover:text-blue-600 font-medium">Giới thiệu</Link>
@@ -176,11 +180,6 @@ const Index = () => {
                     <div className="text-sm text-slate-600">Hài lòng</div>
                   </div>
                 </div>
-
-                {/* Recent Projects Section */}
-                <div className="mb-16">
-                  <RecentProjects onProjectSelected={setProject} />
-                </div>
               </>
             )}
 
@@ -242,7 +241,7 @@ const Index = () => {
                   ← Quay lại
                 </Button>
               </div>
-              <ProjectDashboard onProjectSelected={setProject} />
+              <ProjectDashboard onProjectSelected={handleProjectSelected} />
             </div>
           )}
         </div>
