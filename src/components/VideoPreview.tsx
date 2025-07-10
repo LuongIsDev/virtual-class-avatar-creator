@@ -1,11 +1,12 @@
 
-import { useState, useEffect } from 'react';
-import { Play, Pause, Volume2, VolumeX, Download, Share, Settings, Loader2, CheckCircle } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Play, Pause, Volume2, VolumeX, Download, Share, Settings, CheckCircle, SkipBack, SkipForward } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
 import { useToast } from '@/hooks/use-toast';
 
 interface VideoPreviewProps {
@@ -20,7 +21,11 @@ const VideoPreview = ({ project }: VideoPreviewProps) => {
   const [showSubtitles, setShowSubtitles] = useState(true);
   const [videoQuality, setVideoQuality] = useState('1080p');
   const [mouthAnimation, setMouthAnimation] = useState(0);
+  const [volume, setVolume] = useState([80]);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
+
+  const duration = project?.content?.totalDuration || 100;
 
   // Mouth animation for talking avatar
   useEffect(() => {
@@ -36,14 +41,13 @@ const VideoPreview = ({ project }: VideoPreviewProps) => {
     setIsPlaying(!isPlaying);
     
     if (!isPlaying) {
-      // Simulate video playback with realistic timing
-      const interval = setInterval(() => {
+      // Start playback
+      intervalRef.current = setInterval(() => {
         setCurrentTime(prev => {
-          const duration = project?.content?.totalDuration || 100;
           if (prev >= duration) {
             setIsPlaying(false);
-            clearInterval(interval);
-            return 0;
+            if (intervalRef.current) clearInterval(intervalRef.current);
+            return duration;
           }
           
           // Change slides based on time
@@ -53,7 +57,42 @@ const VideoPreview = ({ project }: VideoPreviewProps) => {
           return prev + 1;
         });
       }, 1000);
+    } else {
+      // Pause playback
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
     }
+  };
+
+  const handleSeek = (newTime: number[]) => {
+    const time = newTime[0];
+    setCurrentTime(time);
+    
+    // Update slide based on new time
+    const slideIndex = Math.floor((time / duration) * (project?.content?.slides?.length || 5));
+    setCurrentSlide(slideIndex);
+  };
+
+  const handleSkipBack = () => {
+    const newTime = Math.max(0, currentTime - 10);
+    setCurrentTime(newTime);
+    const slideIndex = Math.floor((newTime / duration) * (project?.content?.slides?.length || 5));
+    setCurrentSlide(slideIndex);
+  };
+
+  const handleSkipForward = () => {
+    const newTime = Math.min(duration, currentTime + 10);
+    setCurrentTime(newTime);
+    const slideIndex = Math.floor((newTime / duration) * (project?.content?.slides?.length || 5));
+    setCurrentSlide(slideIndex);
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   if (!project) {
@@ -74,7 +113,6 @@ const VideoPreview = ({ project }: VideoPreviewProps) => {
     );
   }
 
-  const duration = project.content?.totalDuration || 100;
   const currentSlideData = project.content?.slides?.[currentSlide] || project.content?.slides?.[0];
 
   return (
@@ -84,10 +122,10 @@ const VideoPreview = ({ project }: VideoPreviewProps) => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CheckCircle className="h-5 w-5 text-green-600" />
-            Video đã tạo thành công!
+            Video bài giảng đã hoàn thành!
           </CardTitle>
           <CardDescription>
-            Video bài giảng của bạn đã sẵn sàng. Bấm play để xem và có thể tải xuống.
+            Bài giảng của bạn đã được tạo thành công. Sử dụng các điều khiển bên dưới để xem và điều chỉnh video.
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
@@ -124,7 +162,7 @@ const VideoPreview = ({ project }: VideoPreviewProps) => {
               {/* Avatar Area */}
               <div className="w-80 p-6 flex flex-col justify-end">
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                  <div className="aspect-[3/4] bg-gradient-to-b from-purple-400 to-blue-500 rounded-xl mb-4 flex items-center justify-center relative overflow-hidden">
+                  <div className="aspect-[3/4] bg-gradient-to-b from-blue-400 to-purple-500 rounded-xl mb-4 flex items-center justify-center relative overflow-hidden">
                     {/* Avatar with mouth animation */}
                     <div className="text-white text-center relative">
                       <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3 relative">
@@ -182,35 +220,41 @@ const VideoPreview = ({ project }: VideoPreviewProps) => {
               </div>
             )}
 
-            {/* Play Button Overlay */}
-            {!isPlaying && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Button
-                  size="lg"
-                  onClick={handlePlayPause}
-                  className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30"
-                >
-                  <Play className="h-8 w-8 text-white ml-1" />
-                </Button>
-              </div>
-            )}
-
             {/* Slide Counter */}
             <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
               {currentSlide + 1} / {project.content?.slides?.length || 5}
             </div>
 
-            {/* Time Display - No scrubbing allowed */}
+            {/* Time Display */}
             <div className="absolute bottom-4 left-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
-              {Math.floor(currentTime / 60)}:{(currentTime % 60).toString().padStart(2, '0')} / {Math.floor(duration / 60)}:{(duration % 60).toString().padStart(2, '0')}
+              {formatTime(currentTime)} / {formatTime(duration)}
             </div>
           </div>
 
-          {/* Video Controls - Simplified, no scrubbing */}
+          {/* Video Controls */}
           <div className="p-4 space-y-4">
+            {/* Progress Bar */}
+            <div className="space-y-2">
+              <Slider
+                value={[currentTime]}
+                max={duration}
+                step={1}
+                onValueChange={handleSeek}
+                className="w-full"
+              />
+            </div>
+
             {/* Control Buttons */}
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSkipBack}
+                >
+                  <SkipBack className="h-4 w-4" />
+                </Button>
+                
                 <Button
                   variant="outline"
                   size="sm"
@@ -221,6 +265,14 @@ const VideoPreview = ({ project }: VideoPreviewProps) => {
                   ) : (
                     <Play className="h-4 w-4" />
                   )}
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSkipForward}
+                >
+                  <SkipForward className="h-4 w-4" />
                 </Button>
                 
                 <Button
@@ -234,6 +286,16 @@ const VideoPreview = ({ project }: VideoPreviewProps) => {
                     <Volume2 className="h-4 w-4" />
                   )}
                 </Button>
+
+                <div className="w-24">
+                  <Slider
+                    value={volume}
+                    max={100}
+                    step={1}
+                    onValueChange={setVolume}
+                    className="w-full"
+                  />
+                </div>
               </div>
 
               <div className="flex items-center space-x-2">
@@ -255,8 +317,8 @@ const VideoPreview = ({ project }: VideoPreviewProps) => {
       <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5 text-purple-600" />
-            Cài đặt video
+            <Settings className="h-5 w-5 text-blue-600" />
+            Cài đặt xuất video
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -270,7 +332,7 @@ const VideoPreview = ({ project }: VideoPreviewProps) => {
                     variant={videoQuality === quality ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setVideoQuality(quality)}
-                    className={videoQuality === quality ? 'bg-gradient-to-r from-purple-600 to-blue-600' : ''}
+                    className={videoQuality === quality ? 'bg-gradient-to-r from-blue-600 to-purple-600' : ''}
                   >
                     {quality}
                   </Button>
@@ -305,7 +367,7 @@ const VideoPreview = ({ project }: VideoPreviewProps) => {
           </Button>
         </div>
         
-        <Button className="bg-gradient-to-r from-purple-600 to-blue-600 px-8">
+        <Button className="bg-gradient-to-r from-blue-600 to-purple-600 px-8">
           <Download className="h-4 w-4 mr-2" />
           Tải xuống video
         </Button>
