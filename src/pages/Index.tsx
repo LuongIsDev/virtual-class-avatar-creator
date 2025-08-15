@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { GraduationCap, LogIn, Menu, X, User, BookOpen, Upload, Zap, Users, Award } from 'lucide-react';
+import SlideEditor from '@/components/SlideEditor';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import ContentUploader from '@/components/ContentUploader';
@@ -11,7 +12,7 @@ import ProjectDashboard from '@/components/ProjectDashboard';
 import { Link } from 'react-router-dom';
 
 const Index = () => {
-  const [currentStep, setCurrentStep] = useState('upload');
+  const [currentStep, setCurrentStep] = useState<'upload' | 'document-processing' | 'edit-slides' | 'avatar' | 'generating' | 'preview' | 'projects'>('upload');
   const [project, setProject] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -24,7 +25,7 @@ const Index = () => {
 
   const handleDocumentProcessingComplete = (processedProject: any) => {
     setProject(processedProject);
-    setCurrentStep('avatar');
+    setCurrentStep('edit-slides');
   };
 
   const handleProjectUpdated = (updatedProject: any) => {
@@ -241,6 +242,14 @@ const Index = () => {
                 </div>
               </CardContent>
             </Card>
+          )}
+
+          {currentStep === 'edit-slides' && (
+            <SlideEditor 
+              project={project}
+              onSaveChanges={(updatedProject) => setProject(updatedProject)}
+              onContinue={() => setCurrentStep('avatar')}
+            />
           )}
 
           {currentStep === 'preview' && (

@@ -1,6 +1,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Play, Pause, Volume2, VolumeX, Download, Share, Settings, CheckCircle, SkipBack, SkipForward } from 'lucide-react';
+import TeacherChatInterface from './TeacherChatInterface';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -116,7 +117,14 @@ const VideoPreview = ({ project }: VideoPreviewProps) => {
   const currentSlideData = project.content?.slides?.[currentSlide] || project.content?.slides?.[0];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* Teacher Chat Interface */}
+      <TeacherChatInterface 
+        isVideoPlaying={isPlaying}
+        onResumeVideo={() => setIsPlaying(true)}
+        onPauseVideo={() => setIsPlaying(false)}
+      />
+
       {/* Video Preview */}
       <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm overflow-hidden">
         <CardHeader>

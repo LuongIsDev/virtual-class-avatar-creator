@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { FileText, Scissors, Edit, List, ChevronRight, Plus, Trash2, Check } from 'lucide-react';
+import { FileText, Scissors, Edit, List, ChevronRight, Check } from 'lucide-react';
+import ChapterRangeInput from './ChapterRangeInput';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -245,69 +246,21 @@ const DocumentProcessor = ({ project, onProcessingComplete }: DocumentProcessorP
 
               {/* Manual Chapter Input */}
               {splitMode === 'manual' && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-medium">Nhập nội dung các chương</h4>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={addCustomChapter}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Thêm chương
-                    </Button>
-                  </div>
-                  
-                  <div className="space-y-4 max-h-96 overflow-y-auto">
-                    {customChapters.map((chapter, index) => (
-                      <Card key={chapter.id} className="border-orange-200">
-                        <CardContent className="pt-4">
-                          <div className="space-y-3">
-                            <div className="flex items-center justify-between">
-                              <Label className="font-medium">Chương {index + 1}</Label>
-                              {customChapters.length > 1 && (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => removeCustomChapter(chapter.id)}
-                                  className="text-red-500 hover:text-red-700"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              )}
-                            </div>
-                            <Input
-                              placeholder="Tiêu đề chương..."
-                              value={chapter.title}
-                              onChange={(e) => updateCustomChapter(chapter.id, 'title', e.target.value)}
-                            />
-                            <Textarea
-                              placeholder="Nội dung chương..."
-                              value={chapter.content}
-                              onChange={(e) => updateCustomChapter(chapter.id, 'content', e.target.value)}
-                              rows={3}
-                            />
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-
-                  <div className="bg-orange-50 rounded-lg p-4">
-                    <p className="text-sm text-gray-700">
-                      Số chương hợp lệ: <span className="font-medium">{validCustomChaptersCount}</span>
-                    </p>
-                  </div>
-
-                  <Button 
-                    onClick={handleSplitProcess}
-                    disabled={validCustomChaptersCount === 0}
-                    className="w-full bg-gradient-to-r from-orange-500 to-red-500"
-                  >
-                    <ChevronRight className="h-4 w-4 mr-2" />
-                    Tạo video từ {validCustomChaptersCount} chương
-                  </Button>
-                </div>
+                <ChapterRangeInput 
+                  onRangeSubmit={(fromChapter, toChapter) => {
+                    const processedProject = {
+                      ...project,
+                      processingMode: 'split',
+                      splitMode: 'manual',
+                      processedContent: {
+                        ...project.content,
+                        selectedChapters: { fromChapter, toChapter },
+                        totalSelectedDuration: (toChapter - fromChapter + 1) * 4
+                      }
+                    };
+                    onProcessingComplete(processedProject);
+                  }}
+                />
               )}
 
               {/* Auto Chapter Selection */}
