@@ -4,6 +4,7 @@ import { GraduationCap, LogIn, Menu, X, User, BookOpen, Upload, Zap, Users, Awar
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import ContentUploader from '@/components/ContentUploader';
+import DocumentProcessor from '@/components/DocumentProcessor';
 import AvatarSelector from '@/components/AvatarSelector';
 import VideoPreview from '@/components/VideoPreview';
 import ProjectDashboard from '@/components/ProjectDashboard';
@@ -17,8 +18,13 @@ const Index = () => {
   const handleProjectCreated = (newProject: any) => {
     setProject(newProject);
     setTimeout(() => {
-      setCurrentStep('avatar');
+      setCurrentStep('document-processing');
     }, 1000);
+  };
+
+  const handleDocumentProcessingComplete = (processedProject: any) => {
+    setProject(processedProject);
+    setCurrentStep('avatar');
   };
 
   const handleProjectUpdated = (updatedProject: any) => {
@@ -198,6 +204,13 @@ const Index = () => {
         <div className="space-y-6">
           {currentStep === 'upload' && (
             <ContentUploader onProjectCreated={handleProjectCreated} />
+          )}
+
+          {currentStep === 'document-processing' && (
+            <DocumentProcessor 
+              project={project}
+              onProcessingComplete={handleDocumentProcessingComplete}
+            />
           )}
 
           {currentStep === 'avatar' && (
